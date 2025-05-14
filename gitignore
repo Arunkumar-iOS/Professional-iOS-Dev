@@ -1,0 +1,74 @@
+
+# Xcode
+*.xcworkspace
+!default.xcworkspace
+*.xccheckout
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/xcshareddata/**/*
+*.xcuserstate
+*.xcuserdata/
+DerivedData/
+build/
+*.moved-aside
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+Package.resolved
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/
+Carthage.build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Archives
+*.xcarchive
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# SwiftPM Xcode project
+.xcodeproj/project.xcworkspace/
+
+# User settings
+*.swp
+*.lock
+.idea/
+*.hmap
+
+# OS / Editor
+.DS_Store
+*.orig
+*.backup
+*.tmp
+*.bak
+*.log
+*.swp
+*.swo
+*.swn
+*~.nib
+
+# Testing / CI
+.xcresult
+*.ipa
+
+# Simulator devices (optional)
+*.simruntime
+*.simdevicetype
+*.simdevice
+
+# Xcode previews cache
+*.canvas
