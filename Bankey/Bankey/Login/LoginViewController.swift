@@ -7,11 +7,18 @@
 
 import UIKit
 
+
+protocol LoginViewControllerDelegate: AnyObject {
+    func didLogIn()
+}
+
+
+
 class LoginViewController: UIViewController {
     
     let loginView = LoginView()
     
-    
+    weak var delegate: LoginViewControllerDelegate?
     
     let signInButton: UIButton = {
         let button = UIButton()
@@ -39,6 +46,10 @@ class LoginViewController: UIViewController {
         view.backgroundColor = .systemBackground
         style()
         layout()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        signInButton.configuration?.showsActivityIndicator = false
     }
 
 
@@ -87,7 +98,7 @@ extension LoginViewController {
     }
     
     private func handleLogin() {
-        
+                
         errorMsgLabel.isHidden = true
         
         //Unwrap an Optional
@@ -101,18 +112,43 @@ extension LoginViewController {
             return
         }
         
-        guard userName == "Kevin" && password == "Welcome" else {
+        guard userName == "1" && password == "1" else {
             configureErrorLabel(withText: "Please check your username or password")
             return
         }
         
         print("You loggedIn successfully")
         signInButton.configuration!.showsActivityIndicator = true
+        print(delegate)
+        delegate!.didLogIn()
     }
     
     private func configureErrorLabel(withText text: String) {
         errorMsgLabel.text = text
         errorMsgLabel.isHidden = false
+        
+        UserDefaults.isLoggedIn = true
+    }
+    
+}
+
+
+extension UserDefaults {
+    
+    //Extension shouldn't has stored properties instead use enum for better architecture
+    static let defaults = UserDefaults.standard
+    
+    enum keys: String {
+        case isLoggedIn = "isLoggedIn"
+    }
+    
+     static var isLoggedIn: Bool {
+        get {
+            return defaults.bool(forKey: keys.isLoggedIn.rawValue)
+        }
+        set {
+            defaults.set(newValue, forKey: keys.isLoggedIn.rawValue)
+        }
     }
     
 }
