@@ -57,13 +57,6 @@ extension MainTabbarContainerViewController {
 
 
 //MARK:- Sample ViewControllers
-class AccountSummaryViewController: UIViewController {
-    override func viewDidLoad() {
-        view.backgroundColor = .systemGreen
-        
-        title = "Summary"
-    }
-}
 
 class MoveMoneyViewController: UIViewController {
     override func viewDidLoad() {
