@@ -7,13 +7,15 @@
 
 import UIKit
 
+let appColor = UIColor.systemTeal
+
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     let loginViewController = LoginViewController()
     let onboardContainerViewController = OnboardingContainerViewController()
-    let dummyViewController = DummyViewController()
+    let mainTabbarViewController = MainTabbarContainerViewController()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
@@ -27,11 +29,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         loginViewController.delegate = self
         onboardContainerViewController.delegate = self
-        dummyViewController.delegate = self
         
         window = UIWindow()
-        window?.rootViewController = loginViewController
+        window?.rootViewController = UserDefaults.hasOnboarded == true ? mainTabbarViewController : loginViewController
        // window?.rootViewController = OnboardingContainerViewController()
+       // window?.rootViewController = MainTabbarContainerViewController()
         window?.makeKeyAndVisible()
         
         
@@ -60,7 +62,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
-extension AppDelegate: LoginViewControllerDelegate, OnboardContainerViewControllerDelegate, DummyViewControllerDelegate {
+extension AppDelegate: LoginViewControllerDelegate, OnboardContainerViewControllerDelegate {
     
     func didTapLogout() {
         transitionTo(loginViewController)
@@ -69,11 +71,11 @@ extension AppDelegate: LoginViewControllerDelegate, OnboardContainerViewControll
     
     func onboardingDidFinish() {
         UserDefaults.hasOnboarded = true
-        transitionTo(dummyViewController)
+        transitionTo(mainTabbarViewController)
     }
         
     func didLogIn() {
-        self.transitionTo(UserDefaults.hasOnboarded == true ? dummyViewController : onboardContainerViewController)
+        self.transitionTo(UserDefaults.hasOnboarded == true ? mainTabbarViewController : onboardContainerViewController)
     }
     
     
