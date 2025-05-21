@@ -18,8 +18,9 @@ class LoginView: UIView {
     
     let passwordTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Password"
+        textField.placeholder = "Password                                  "
         textField.isSecureTextEntry = true
+        textField.enablePasswordToggle()
         return textField
     }()
     
@@ -47,7 +48,7 @@ class LoginView: UIView {
     
     let titleStackView = VerticalStackView()
     
-    
+    var titleStackViewCentreXAnchorConstraint: NSLayoutConstraint!
     
     
     override init(frame: CGRect) {
@@ -59,6 +60,16 @@ class LoginView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+     func animateTitleStackView() {
+         let animator = UIViewPropertyAnimator(duration: 0.9, curve: .easeInOut) {
+             //Change the constraint with animation
+            self.titleStackViewCentreXAnchorConstraint?.constant = 0
+            self.titleStackViewCentreXAnchorConstraint?.isActive = true
+            self.layoutIfNeeded()
+        }
+        animator.startAnimation()
     }
     
     //Since all element inside this have intrinsic size so this no longer needed.
@@ -91,12 +102,12 @@ extension LoginView {
         titleStackView.addArrangedSubview(titleDescriptionLabel)
         titleStackView.spacing = UIScaler.scaled(16)
         
+        //Set constraint
+        titleStackViewCentreXAnchorConstraint = titleStackView.centerXAnchor.constraint(equalTo: centerXAnchor, constant: -1000)
         
         NSLayoutConstraint.activate([
-            titleStackView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            titleStackViewCentreXAnchorConstraint,
             titleStackView.bottomAnchor.constraint(equalTo: stackView.topAnchor, constant: UIScaler.scaled(-16)),
-            titleStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            titleStackView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     
         
@@ -116,6 +127,7 @@ extension LoginView {
         stackView.isLayoutMarginsRelativeArrangement = true
         let scaledSize = UIScaler.scaled(8)
         stackView.layoutMargins = UIEdgeInsets(top: scaledSize, left: scaledSize, bottom: scaledSize, right: scaledSize)
+
     }
 }
 

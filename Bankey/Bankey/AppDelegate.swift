@@ -27,6 +27,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
  
     private func navigateToHome() {
         
+        //Register to receive notification
+        NotificationCenter.default.addObserver(self, selector: #selector(logoutTapped), name: .logoutButtonTapped, object: nil)
+        
+        
         loginViewController.delegate = self
         onboardContainerViewController.delegate = self
         
@@ -36,10 +40,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
        // window?.rootViewController = OnboardingContainerViewController()
        // window?.rootViewController = MainTabbarContainerViewController()
         window?.makeKeyAndVisible()
-        
-        
+    }
     
+    @objc func logoutTapped() {
         
+        transitionTo(loginViewController)
     }
     
     func transitionTo(_ newViewController: UIViewController) {
@@ -66,6 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension AppDelegate: LoginViewControllerDelegate, OnboardContainerViewControllerDelegate {
     
     func didTapLogout() {
+        UserDefaults.removeAll()
         transitionTo(loginViewController)
     }
     

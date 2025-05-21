@@ -20,7 +20,7 @@ class LoginViewController: UIViewController {
     
     weak var delegate: LoginViewControllerDelegate?
     
-    let signInButton: UIButton = {
+    lazy var signInButton: UIButton = {
         let button = UIButton()
         var config = UIButton.Configuration.filled()
         config.title = "Sign In"
@@ -50,6 +50,10 @@ class LoginViewController: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         signInButton.configuration?.showsActivityIndicator = false
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        loginView.animateTitleStackView()
     }
 
 
@@ -117,9 +121,7 @@ extension LoginViewController {
             return
         }
         
-        print("You loggedIn successfully")
         signInButton.configuration!.showsActivityIndicator = true
-        print(delegate)
         delegate!.didLogIn()
     }
     
@@ -128,6 +130,18 @@ extension LoginViewController {
         errorMsgLabel.isHidden = false
         
         UserDefaults.isLoggedIn = true
+        shakeButton()
+    }
+    
+    private func shakeButton() {
+        let animation = CAKeyframeAnimation()
+        animation.keyPath = "position.x"
+        animation.values = [0, 10, -10, 10, -10, 0]
+        animation.keyTimes = [0, 0.16, 0.5, 0.83, 1]
+        animation.duration = 0.4
+        
+        animation.isAdditive = true
+        signInButton.layer.add(animation, forKey: "shake")
     }
     
 }

@@ -11,6 +11,7 @@ import UIKit
 class AccountSummaryHeaderView: UIView {
     
     @IBOutlet var contentView: UIView!
+    let shakeyBellView = ShakeyBellView()
     
     // Required for loading from nib
     override init(frame: CGRect) {
@@ -32,11 +33,18 @@ class AccountSummaryHeaderView: UIView {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         contentView.backgroundColor = appColor
         
+        shakeyBellView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(shakeyBellView)
+        
         NSLayoutConstraint.activate([
             contentView.topAnchor.constraint(equalTo: topAnchor),
             contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            
+            //add constraint to shakey bell view
+            shakeyBellView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            shakeyBellView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
     

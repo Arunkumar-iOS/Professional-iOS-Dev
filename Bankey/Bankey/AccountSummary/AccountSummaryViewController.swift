@@ -12,6 +12,12 @@ class AccountSummaryViewController: UIViewController {
     var accounts: [AccountSummaryTableViewCell.ViewModel] = []
     var tableView = UITableView()
     
+    lazy var navigationBarLogoutBtn: UIBarButtonItem = {
+        let logoutBtn = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(logoutButtonTapped))
+        logoutBtn.tintColor = .label
+        return logoutBtn
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -22,9 +28,14 @@ class AccountSummaryViewController: UIViewController {
 extension AccountSummaryViewController {
     
     private func setup() {
+        setupNavigationBar()
         setupTableView()
         setupHeaderView()
         fetchData()
+    }
+    
+    private func setupNavigationBar() {
+        navigationItem.rightBarButtonItem = navigationBarLogoutBtn
     }
     
     private func setupTableView() {
@@ -117,3 +128,16 @@ extension AccountSummaryViewController {
         accounts.append(investment2)
     }
 }
+
+//MARK:- Actions
+extension AccountSummaryViewController {
+    
+    @objc func logoutButtonTapped() {
+       
+        NotificationCenter.default.post(name: .logoutButtonTapped, object: nil)
+    }
+     
+}
+
+
+

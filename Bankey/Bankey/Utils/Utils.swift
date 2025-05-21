@@ -18,5 +18,9 @@ extension UserDefaults {
         get { standard.bool(forKey: Keys.hasOnboarded) }
         set { standard.set(newValue, forKey: Keys.hasOnboarded) }
     }
+    
+    static func removeAll() {
+        standard.removeObject(forKey: Keys.hasOnboarded)
+    }
 
 }
