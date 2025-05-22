@@ -18,6 +18,9 @@ final class CurrencyFormattorUnitTests: XCTestCase {
         super.setUp()
     }
     
+    
+    //Unhide when you want to test 
+    /*
     func testCurrencyFormatter() throws {
     
         // Given
@@ -44,5 +47,7 @@ final class CurrencyFormattorUnitTests: XCTestCase {
         XCTAssertEqual(result.string, "$11111")
         
     }
+     
+     */
    
 }

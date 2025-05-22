@@ -8,23 +8,30 @@
 import UIKit
 
 
+struct Account: Codable {
+    let id: String
+    let type: AccountType
+    let name: String
+    let amount: Decimal
+    let createdDateTime: Date
+}
+
+enum AccountType: String, Codable {
+    case Banking
+    case Investment
+    case CreditCard
+}
+
 
 class AccountSummaryTableViewCell: UITableViewCell {
-    
-    
-    enum AccountType: String {
-        case Banking
-        case Investment
-        case CreditCard
-    }
     
     struct ViewModel {
         let accountType: AccountType
         let accountName: String
-        let balance: Double
+        let balance: Decimal
         
         var balanceAsAttributedString: NSAttributedString {
-            return CurrencyFormatter.formattedBalanceWithSuperscript(from: balance)
+            return CurrencyFormatter().makeAttributedCurrency(balance)//CurrencyFormatter.formattedBalanceWithSuperscript(from: balance)
         }
     }
     

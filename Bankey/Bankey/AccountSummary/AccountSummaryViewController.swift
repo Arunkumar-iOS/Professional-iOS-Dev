@@ -9,7 +9,12 @@ import UIKit
 
 class AccountSummaryViewController: UIViewController {
     
-    var accounts: [AccountSummaryTableViewCell.ViewModel] = []
+//    var profile: Profile?
+    var profileHeaderViewModel = AccountSummaryHeaderView.ViewModel(welcomeText: "Welcome", name: "", date: Date())
+    
+    let header = AccountSummaryHeaderView()
+    
+    var accountCellViewModels: [AccountSummaryTableViewCell.ViewModel] = []
     var tableView = UITableView()
     
     lazy var navigationBarLogoutBtn: UIBarButtonItem = {
@@ -31,7 +36,7 @@ extension AccountSummaryViewController {
         setupNavigationBar()
         setupTableView()
         setupHeaderView()
-        fetchData()
+        fetchDataFromServer()
     }
     
     private func setupNavigationBar() {
@@ -64,7 +69,6 @@ extension AccountSummaryViewController {
     
     private func setupHeaderView() {
         
-        let header = AccountSummaryHeaderView()
         
         // Calculate fitting height based on content
         let targetSize = CGSize(width: tableView.bounds.width, height: UIView.layoutFittingCompressedSize.height)
@@ -80,14 +84,14 @@ extension AccountSummaryViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: AccountSummaryTableViewCell.resueIdentifier, for: indexPath) as! AccountSummaryTableViewCell
-        guard !accounts.isEmpty else { return AccountSummaryTableViewCell() }
-        let account = accounts[indexPath.row]
+        guard !accountCellViewModels.isEmpty else { return AccountSummaryTableViewCell() }
+        let account = accountCellViewModels[indexPath.row]
         cell.configure(with: account)
         return cell
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return accounts.count
+        return accountCellViewModels.count
     }
 }
 
@@ -95,37 +99,6 @@ extension AccountSummaryViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-    }
-}
-
-
-extension AccountSummaryViewController {
-    private func fetchData() {
-        let savings = AccountSummaryTableViewCell.ViewModel(accountType: .Banking,
-                                                            accountName: "Basic Savings",
-                                                        balance: 929466.23)
-        let chequing = AccountSummaryTableViewCell.ViewModel(accountType: .Banking,
-                                                    accountName: "No-Fee All-In Chequing",
-                                                    balance: 17562.44)
-        let visa = AccountSummaryTableViewCell.ViewModel(accountType: .CreditCard,
-                                                       accountName: "Visa Avion Card",
-                                                       balance: 412.83)
-        let masterCard = AccountSummaryTableViewCell.ViewModel(accountType: .CreditCard,
-                                                       accountName: "Student Mastercard",
-                                                       balance: 50.83)
-        let investment1 = AccountSummaryTableViewCell.ViewModel(accountType: .Investment,
-                                                       accountName: "Tax-Free Saver",
-                                                       balance: 2000.00)
-        let investment2 = AccountSummaryTableViewCell.ViewModel(accountType: .Investment,
-                                                       accountName: "Growth Fund",
-                                                       balance: 15000.00)
-
-        accounts.append(savings)
-        accounts.append(chequing)
-        accounts.append(visa)
-        accounts.append(masterCard)
-        accounts.append(investment1)
-        accounts.append(investment2)
     }
 }
 
@@ -137,6 +110,55 @@ extension AccountSummaryViewController {
         NotificationCenter.default.post(name: .logoutButtonTapped, object: nil)
     }
      
+}
+
+
+
+extension AccountSummaryViewController {
+    
+    private func fetchDataFromServer() {
+        
+        WebService.shared.fetch(url: APIEndPoint.profile.fullURL) { [weak self] (result: Result<Profile, NetworkError>) in
+            switch result {
+            case .success(let profile):
+                self?.configureHeaderView(withProfile: profile)
+                self?.tableView.reloadData()
+            case .failure(let error):
+                print("Error:", error.localizedDescription)
+            }
+        }
+    
+        WebService.shared.fetch(url: APIEndPoint.accounts.fullURL) {[weak self] (result: Result<[Account], NetworkError>) in
+    
+            switch result {
+                case .success(let account):
+                self?.configureTableCells(with: account)
+                self?.tableView.reloadData()
+            case .failure(let error):
+                print("Error:", error.localizedDescription)
+            }
+        }
+    }
+}
+
+//Configuring data's
+extension AccountSummaryViewController {
+    
+    private func configureHeaderView(withProfile profile: Profile) {
+        let vm = AccountSummaryHeaderView.ViewModel(welcomeText: "Hello Good morning,",
+                                                    name: profile.firstName,
+                                                    date: Date())
+        header.configure(viewModel: vm)
+    }
+    
+    private func configureTableCells(with accounts: [Account]) {
+        //Transform account into account view model
+          accountCellViewModels = accounts.map {
+              AccountSummaryTableViewCell.ViewModel(accountType: $0.type,
+                                           accountName: $0.name,
+                                           balance: $0.amount)
+          }
+      }
 }
 
 

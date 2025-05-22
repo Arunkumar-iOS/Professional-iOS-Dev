@@ -10,7 +10,25 @@ import UIKit
 
 class AccountSummaryHeaderView: UIView {
     
+    struct ViewModel {
+        let welcomeText: String
+        let name: String
+        let date: Date
+        
+        var formattedDate: String {
+            return date.monthDayYearString
+        }
+    }
+    
+    
+    
     @IBOutlet var contentView: UIView!
+    
+    @IBOutlet weak var welcomeLabel: UILabel!
+    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var dateLabel: UILabel!
+    
+    
     let shakeyBellView = ShakeyBellView()
     
     // Required for loading from nib
@@ -53,4 +71,27 @@ class AccountSummaryHeaderView: UIView {
     }
     
     
+}
+
+
+extension AccountSummaryHeaderView {
+    
+    func configure(viewModel: ViewModel) {
+        
+        welcomeLabel.text = viewModel.welcomeText
+        nameLabel.text = viewModel.name
+        dateLabel.text = viewModel.formattedDate
+    }
+}
+
+struct Profile: Codable {
+    let id: String
+    let firstName: String
+    let lastName: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case firstName = "first_name"
+        case lastName = "last_name"
+    }
 }
