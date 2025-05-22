@@ -36,7 +36,7 @@ extension AccountSummaryViewController {
         setupNavigationBar()
         setupTableView()
         setupHeaderView()
-        fetchDataFromServer()
+        fetchData()
     }
     
     private func setupNavigationBar() {
@@ -116,27 +116,36 @@ extension AccountSummaryViewController {
 
 extension AccountSummaryViewController {
     
-    private func fetchDataFromServer() {
+    private func fetchData() {
         
+        let dispatchGroup = DispatchGroup()
+        
+        dispatchGroup.enter()
         WebService.shared.fetch(url: APIEndPoint.profile.fullURL) { [weak self] (result: Result<Profile, NetworkError>) in
             switch result {
             case .success(let profile):
                 self?.configureHeaderView(withProfile: profile)
-                self?.tableView.reloadData()
             case .failure(let error):
                 print("Error:", error.localizedDescription)
             }
+            dispatchGroup.leave()
         }
-    
+        
+        
+        dispatchGroup.enter()
         WebService.shared.fetch(url: APIEndPoint.accounts.fullURL) {[weak self] (result: Result<[Account], NetworkError>) in
-    
+            
             switch result {
-                case .success(let account):
+            case .success(let account):
                 self?.configureTableCells(with: account)
-                self?.tableView.reloadData()
             case .failure(let error):
                 print("Error:", error.localizedDescription)
             }
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            self.tableView.reloadData()
         }
     }
 }
