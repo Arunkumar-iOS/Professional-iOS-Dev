@@ -15,7 +15,10 @@ class AccountSummaryViewController: UIViewController {
     let header = AccountSummaryHeaderView()
     
     var accountCellViewModels: [AccountSummaryTableViewCell.ViewModel] = []
+    
+    //Components
     var tableView = UITableView()
+    let refreshControl = UIRefreshControl()
     
     lazy var navigationBarLogoutBtn: UIBarButtonItem = {
         let logoutBtn = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(logoutButtonTapped))
@@ -36,7 +39,14 @@ extension AccountSummaryViewController {
         setupNavigationBar()
         setupTableView()
         setupHeaderView()
+        setupRefreshControl()
         fetchData()
+    }
+    
+    private func setupRefreshControl() {
+        refreshControl.tintColor = appColor
+        refreshControl.addTarget(self, action: #selector(refreshContent), for: .valueChanged)
+        tableView.refreshControl = refreshControl
     }
     
     private func setupNavigationBar() {
@@ -106,10 +116,14 @@ extension AccountSummaryViewController: UITableViewDelegate {
 extension AccountSummaryViewController {
     
     @objc func logoutButtonTapped() {
-       
+        
         NotificationCenter.default.post(name: .logoutButtonTapped, object: nil)
     }
-     
+    
+    @objc func refreshContent() {
+        fetchData()
+    }
+    
 }
 
 
@@ -146,6 +160,7 @@ extension AccountSummaryViewController {
         
         dispatchGroup.notify(queue: .main) {
             self.tableView.reloadData()
+            self.tableView.refreshControl?.endRefreshing()
         }
     }
 }
