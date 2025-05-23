@@ -9,16 +9,22 @@ import UIKit
 
 class AccountSummaryViewController: UIViewController {
     
-//    var profile: Profile?
+    
+    //For unit test purpose create a Dependency injector and use like this
+    var apiCallManager: ProfileManagable = APICallManager()
+    
+    var profile: Profile?
     var profileHeaderViewModel = AccountSummaryHeaderView.ViewModel(welcomeText: "Welcome", name: "", date: Date())
     
     let header = AccountSummaryHeaderView()
     
     var accountCellViewModels: [AccountSummaryTableViewCell.ViewModel] = []
+    var accounts: [Account] = []
     
     //Components
     var tableView = UITableView()
     let refreshControl = UIRefreshControl()
+    var isLoaded = false
     
     lazy var navigationBarLogoutBtn: UIBarButtonItem = {
         let logoutBtn = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(logoutButtonTapped))
@@ -40,6 +46,7 @@ extension AccountSummaryViewController {
         setupTableView()
         setupHeaderView()
         setupRefreshControl()
+        setupSkeletons()
         fetchData()
     }
     
@@ -47,6 +54,13 @@ extension AccountSummaryViewController {
         refreshControl.tintColor = appColor
         refreshControl.addTarget(self, action: #selector(refreshContent), for: .valueChanged)
         tableView.refreshControl = refreshControl
+    }
+    
+    private func setupSkeletons() {
+        let row = Account.makeSkeleton()
+        accounts = Array(repeating: row, count: 10)
+        
+        configureTableCells(with: accounts)
     }
     
     private func setupNavigationBar() {
@@ -73,6 +87,7 @@ extension AccountSummaryViewController {
     
     private func registerCell() {
         tableView.register(AccountSummaryTableViewCell.self, forCellReuseIdentifier: AccountSummaryTableViewCell.resueIdentifier)
+        tableView.register(SkeletonTableViewCell.self, forCellReuseIdentifier: SkeletonTableViewCell.reuseID)
         tableView.rowHeight = AccountSummaryTableViewCell.rowHeight
         tableView.tableFooterView = UIView()
     }
@@ -93,10 +108,18 @@ extension AccountSummaryViewController {
 extension AccountSummaryViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: AccountSummaryTableViewCell.resueIdentifier, for: indexPath) as! AccountSummaryTableViewCell
-        guard !accountCellViewModels.isEmpty else { return AccountSummaryTableViewCell() }
+        guard !accountCellViewModels.isEmpty else { return UITableViewCell() }
         let account = accountCellViewModels[indexPath.row]
-        cell.configure(with: account)
+
+        if isLoaded {
+            let cell = tableView.dequeueReusableCell(withIdentifier: AccountSummaryTableViewCell.resueIdentifier, for: indexPath) as! AccountSummaryTableViewCell
+            tableView.isUserInteractionEnabled = true
+            cell.configure(with: account)
+            return cell
+        }
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: SkeletonTableViewCell.reuseID, for: indexPath) as! SkeletonTableViewCell
+        tableView.isUserInteractionEnabled = false
         return cell
     }
     
@@ -121,7 +144,16 @@ extension AccountSummaryViewController {
     }
     
     @objc func refreshContent() {
+        reset()
+        setupSkeletons()
+        tableView.reloadData()
         fetchData()
+    }
+    
+    private func reset() {
+        profile = nil
+        accounts = []
+        isLoaded = false
     }
     
 }
@@ -130,38 +162,59 @@ extension AccountSummaryViewController {
 
 extension AccountSummaryViewController {
     
+    fileprivate func fetchProfile(_ dispatchGroup: DispatchGroup) {
+        dispatchGroup.enter()
+        apiCallManager.fetch(url: APIEndPoint.profile.fullURL) { (result: Result<Profile, NetworkError>) in
+            switch result {
+            case .success(let profile):
+                self.profile = profile
+            case .failure(let error):
+                self.displayErrorMessage(error: error)
+            }
+            dispatchGroup.leave()
+        }
+    }
+    
+    fileprivate func fetchAccounts(_ dispatchGroup: DispatchGroup) {
+        dispatchGroup.enter()
+        WebService.shared.fetch(url: APIEndPoint.accounts.fullURL) { (result: Result<[Account], NetworkError>) in
+            
+            switch result {
+            case .success(let account):
+                self.accounts = account
+            case .failure(let error):
+                self.displayErrorMessage(error: error)
+            }
+            dispatchGroup.leave()
+        }
+    }
+    
+    private func reloadView() {
+        self.tableView.refreshControl?.endRefreshing()
+        
+        guard let profile = self.profile else { return }
+        
+        self.isLoaded = true
+        self.configureHeaderView(withProfile: profile) //
+        self.configureTableCells(with: self.accounts) //
+        self.tableView.reloadData()
+    }
+    
     private func fetchData() {
         
         let dispatchGroup = DispatchGroup()
         
-        dispatchGroup.enter()
-        WebService.shared.fetch(url: APIEndPoint.profile.fullURL) { [weak self] (result: Result<Profile, NetworkError>) in
-            switch result {
-            case .success(let profile):
-                self?.configureHeaderView(withProfile: profile)
-            case .failure(let error):
-                print("Error:", error.localizedDescription)
-            }
-            dispatchGroup.leave()
-        }
-        
-        
-        dispatchGroup.enter()
-        WebService.shared.fetch(url: APIEndPoint.accounts.fullURL) {[weak self] (result: Result<[Account], NetworkError>) in
-            
-            switch result {
-            case .success(let account):
-                self?.configureTableCells(with: account)
-            case .failure(let error):
-                print("Error:", error.localizedDescription)
-            }
-            dispatchGroup.leave()
-        }
+        fetchProfile(dispatchGroup)
+        fetchAccounts(dispatchGroup)
         
         dispatchGroup.notify(queue: .main) {
-            self.tableView.reloadData()
-            self.tableView.refreshControl?.endRefreshing()
+            self.reloadView()
         }
+    }
+    
+    func displayErrorMessage(error: NetworkError) {
+        let alertContent = error.alertContent
+        showAlertMessage(title: alertContent.title, message: alertContent.message)
     }
 }
 
@@ -186,4 +239,11 @@ extension AccountSummaryViewController {
 }
 
 
-
+//MARK:- For Unit test purpose
+extension AccountSummaryViewController {
+    
+    func forceFetchProfile() {
+        
+        fetchProfile(DispatchGroup())
+    }
+}

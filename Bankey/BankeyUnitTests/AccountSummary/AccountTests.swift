@@ -52,5 +52,23 @@ class AccountTests: XCTestCase {
         XCTAssertEqual(account1.amount, 929466.23)
         XCTAssertEqual(account1.createdDateTime.monthDayYearString, "Jun 21, 2010")
     }
+
 }
 
+
+// To check alert messages are correct
+final class NetworkErrorTests: XCTestCase {
+    func testAlertContent_forServerError() {
+        let error = NetworkError.serverError
+        let content = error.alertContent
+        XCTAssertEqual(content.title, "Server Error")
+        XCTAssertEqual(content.message, "Ensure you are connected to the internet. Please try again.")
+    }
+
+    func testAlertContent_forParsingError() {
+        let error = NetworkError.parsingError
+        let content = error.alertContent
+        XCTAssertEqual(content.title, "Decoding Error")
+        XCTAssertEqual(content.message, "We could not process your request. Please try again.")
+    }
+}

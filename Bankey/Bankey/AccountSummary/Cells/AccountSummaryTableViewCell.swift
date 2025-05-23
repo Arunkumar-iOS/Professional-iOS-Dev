@@ -14,6 +14,11 @@ struct Account: Codable {
     let name: String
     let amount: Decimal
     let createdDateTime: Date
+    
+    //Create a dummy account model for shimmer animation.
+    static func makeSkeleton() -> Account {
+        return Account(id: "1", type: .Banking, name: "Account name", amount: 0.0, createdDateTime: Date())
+    }
 }
 
 enum AccountType: String, Codable {

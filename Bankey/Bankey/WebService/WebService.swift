@@ -19,6 +19,7 @@ extension WebServiceProtocol {
     }
 }
 
+//This to get different paths when your app grows
 enum APIEndPoint: WebServiceProtocol {
     case profile
     case accounts
@@ -40,6 +41,16 @@ enum APIEndPoint: WebServiceProtocol {
 enum NetworkError: Error {
     case serverError
     case parsingError
+    
+    //To show alert message use this instead of hardcoding
+    var alertContent: (title: String, message: String) {
+        switch self {
+        case .serverError:
+            return ("Server Error", "Ensure you are connected to the internet. Please try again.")
+        case .parsingError:
+            return ("Decoding Error", "We could not process your request. Please try again.")
+        }
+    }
 }
 
 struct WebService {
@@ -68,5 +79,37 @@ struct WebService {
             }
         }.resume()
     }
+    
+}
+
+
+class APICallManager: ProfileManagable {
+    
+   // static let shared = APICallManager()
+    
+    func fetch<T: Decodable>(url: URL, completion: @escaping (Result<T, NetworkError>) -> Void)  {
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            
+            DispatchQueue.main.async {
+                
+                guard let data = data, error == nil else {
+                    completion(.failure(.serverError))
+                    return
+                }
+                
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
+                    let decodedModel = try decoder.decode(T.self, from: data)
+                    completion(.success(decodedModel))
+                } catch {
+                    completion(.failure(.parsingError))
+                }
+            }
+        }.resume()
+    }
+    
+    
     
 }

@@ -10,6 +10,16 @@ import UIKit
 
 extension UIViewController {
     
+    func showAlertMessage(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        
+        // Make sure it's presented on the main thread
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
+    }
+    
     func setStatusBar() {
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithTransparentBackground() // to hide Navigation Bar Line also
