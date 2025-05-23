@@ -25,7 +25,7 @@ class AccountSummaryViewControllerTests: XCTestCase {
                 completion(.failure(error!))
                 return
             }
-            profile = Profile(id: "1", firstName: "FirstName", lastName: "lastName")
+            profile = Profile(id: "1", firstName: "firstName", lastName: "lastName")
             if let profile = profile as? T {
                 completion(.success(profile))
             } else {
@@ -66,5 +66,19 @@ class AccountSummaryViewControllerTests: XCTestCase {
         
         XCTAssertEqual("Decoding Error", NetworkError.parsingError.alertContent.title)
         XCTAssertEqual("We could not process your request. Please try again.", NetworkError.parsingError.alertContent.message)
+    }
+    
+    func testProfileFetchSuccess() {
+        let mockProfile = Profile(id: "1", firstName: "firstName", lastName: "lastName")
+           mockManager.error = nil
+           mockManager.profile = mockProfile
+
+        vc.forceFetchProfile()
+        
+        
+        // Small async delay may be needed if fetch is async
+        XCTAssertEqual(vc.profile?.id, mockProfile.id)
+        XCTAssertEqual(vc.profile?.firstName, mockProfile.firstName)
+        XCTAssertEqual(vc.profile?.lastName, mockProfile.lastName)
     }
 }
