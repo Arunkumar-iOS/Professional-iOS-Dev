@@ -26,6 +26,9 @@ class PasswordValidationViewController: UIViewController {
         stackView.axis = .vertical
         stackView.spacing = 32
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        //When stackview gives ambiguity or not layed correclty just play with things along with anchors of stackview
+    //    stackView.distribution = .fill
+    //    stackView.alignment = .leading
         return stackView
     }()
     
@@ -75,9 +78,9 @@ extension PasswordValidationViewController {
         view.addSubview(passwordStackView)
         
         NSLayoutConstraint.activate([
-            newPasswordFieldView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
-            newPasswordFieldView.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
-            newPasswordFieldView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor)
+            passwordStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
+            passwordStackView.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+            passwordStackView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor)
         ])
     }
 }
