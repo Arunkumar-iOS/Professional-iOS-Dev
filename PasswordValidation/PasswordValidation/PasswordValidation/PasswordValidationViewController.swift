@@ -29,6 +29,26 @@ class PasswordValidationViewController: UIViewController {
         return stackView
     }()
     
+    lazy var passwordCriteriaStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [noSpaceLabelView, upperCaseLabelView, lowerCaseLabelView, digitLabelView, specialCharLabelView])
+        stackView.axis = .vertical
+        stackView.backgroundColor = .systemGroupedBackground
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.layer.cornerRadius = 8
+        stackView.layer.masksToBounds = true
+        
+        //add padding
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.layoutMargins = .init(top: 8, left: 16, bottom: 8, right: 16)
+        return stackView
+    }()
+    
+    let noSpaceLabelView = PasswordCriteriaView(labelText: "8-32 characters (no spaces)", showDescription: true)
+    let upperCaseLabelView = PasswordCriteriaView(labelText: "Uppercase letter (A-Z)")
+    let lowerCaseLabelView = PasswordCriteriaView(labelText: "lower case (a-z)")
+    let digitLabelView = PasswordCriteriaView(labelText: "digit (0-9)")
+    let specialCharLabelView = PasswordCriteriaView(labelText: "Special character (e.g. !@#$%^&*)")
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -42,7 +62,15 @@ extension PasswordValidationViewController {
     
     private func layout() {
         
-        passwordStackView.addArrangedSubviews( [newPasswordFieldView, reEnterPasswordFieldView] )
+        noSpaceLabelView.translatesAutoresizingMaskIntoConstraints = false
+        upperCaseLabelView.translatesAutoresizingMaskIntoConstraints = false
+        lowerCaseLabelView.translatesAutoresizingMaskIntoConstraints = false
+        digitLabelView.translatesAutoresizingMaskIntoConstraints = false
+        specialCharLabelView.translatesAutoresizingMaskIntoConstraints = false
+        
+        passwordStackView.addArrangedSubviews( [newPasswordFieldView,
+                                                passwordCriteriaStackView,
+                                                reEnterPasswordFieldView] )
         
         view.addSubview(passwordStackView)
         
