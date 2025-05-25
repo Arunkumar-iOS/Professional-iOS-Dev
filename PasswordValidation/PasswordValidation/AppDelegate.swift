@@ -21,7 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     private func navigateToHome() {
         window = UIWindow()
-        window?.rootViewController = ViewController()
+        window?.backgroundColor = .systemBackground
+        window?.rootViewController = PasswordValidationViewController()
         window?.makeKeyAndVisible()
     }
 
