@@ -12,6 +12,8 @@ class PasswordFieldView: UIView {
     
     let textFieldPalceholderText: String
     
+    var onTextChange: ((UITextField) -> Void)?
+    
     lazy var passwordtextField: UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -36,6 +38,9 @@ class PasswordFieldView: UIView {
         rightEyeButton.setImage(UIImage(systemName: "eye.slash.circle"), for: .selected)
         textField.rightView = rightEyeButton
         textField.rightViewMode = .always
+        
+        textField.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
+
         
         return textField
     }()
@@ -111,4 +116,11 @@ extension PasswordFieldView {
         
         print("Eye Button Tapped")
     }
+    
+    @objc func textDidChange(_ sender: UITextField) {
+        
+        onTextChange?(sender)
+    }
 }
+
+

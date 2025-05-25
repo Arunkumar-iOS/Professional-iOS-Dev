@@ -13,6 +13,8 @@ class PasswordCriteriaView: UIView {
     var labelText: String
     var showDescription: Bool = false
     
+    
+    
     let textLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -28,6 +30,7 @@ class PasswordCriteriaView: UIView {
         label.font = .systemFont(ofSize: 14, weight: .medium)
         label.textColor = .label
         label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
         label.attributedText = setTextColorforSomePart(fullText: "Use at least 3 of these 4 criteria when setting your password:", changeColorTo: "3 of these 4")
         return label
     }()
@@ -100,6 +103,28 @@ extension PasswordCriteriaView {
             descriptionStackView.bottomAnchor.constraint(equalTo: bottomAnchor) 
         ])
     }
+}
+
+//MARK:- Validation update
+extension PasswordCriteriaView {
+    func updateCriteriaImage(isValid: Bool) {
+        let imageName = isValid ? "checkmark.circle.fill" : "xmark.circle.fill"
+        let tintColor = isValid ? UIColor.systemGreen : UIColor.systemRed
+        
+        checkBoxImageView.image = UIImage(systemName: imageName)?
+            .withTintColor(tintColor, renderingMode: .alwaysOriginal)
+    }
+    
+    func updateCriteriaView(password: String) {
+        
+        updateCriteriaImage(isValid: PasswordCriteriaCheck.checkLengthAndWhitespace(password))
+    }
+    
+    func resetCriteriaView() {
+        checkBoxImageView.image = UIImage(systemName: "circle")?
+            .withTintColor(.tertiaryLabel, renderingMode: .alwaysOriginal)
+    }
+    
 }
 
 

@@ -46,6 +46,17 @@ class PasswordValidationViewController: UIViewController {
         return stackView
     }()
     
+    let resetButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Reset Password", for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = .systemBlue
+        button.setTitleColor(.label, for: .normal)
+        button.layer.cornerRadius = 8
+        button.layer.masksToBounds = true
+        return button
+    }()
+    
     let noSpaceLabelView = PasswordCriteriaView(labelText: "8-32 characters (no spaces)", showDescription: true)
     let upperCaseLabelView = PasswordCriteriaView(labelText: "Uppercase letter (A-Z)")
     let lowerCaseLabelView = PasswordCriteriaView(labelText: "lower case (a-z)")
@@ -55,6 +66,7 @@ class PasswordValidationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        updatePasswordStatusView()
         layout()
     }
 
@@ -73,7 +85,9 @@ extension PasswordValidationViewController {
         
         passwordStackView.addArrangedSubviews( [newPasswordFieldView,
                                                 passwordCriteriaStackView,
-                                                reEnterPasswordFieldView] )
+                                                reEnterPasswordFieldView,
+                                                resetButton
+                                               ] )
         
         view.addSubview(passwordStackView)
         
@@ -90,5 +104,39 @@ extension UIStackView {
     /// Adds an array of views to the arrangedSubviews
     func addArrangedSubviews(_ views: [UIView]) {
         views.forEach { self.addArrangedSubview($0) }
+    }
+}
+
+
+//Closure callback
+extension PasswordValidationViewController {
+    
+    func updatePasswordStatusView() {
+        
+        newPasswordFieldView.onTextChange  = { [weak self] textField in
+            
+            guard let self = self else { return }
+            if textField == newPasswordFieldView.passwordtextField {
+               textField.text!.count == 0 ?  resetCriteriaView() : validate(password: textField.text!)
+               
+            }
+        }
+    }
+    
+    func validate(password: String) {
+        
+        noSpaceLabelView.updateCriteriaImage(isValid: PasswordCriteriaCheck.checkLengthAndWhitespace(password))
+        upperCaseLabelView.updateCriteriaImage(isValid: PasswordCriteriaCheck.containsUppercase(password))
+        lowerCaseLabelView.updateCriteriaImage(isValid: PasswordCriteriaCheck.containsLowercase(password))
+        digitLabelView.updateCriteriaImage(isValid: PasswordCriteriaCheck.containsDigit(password))
+        specialCharLabelView.updateCriteriaImage(isValid: PasswordCriteriaCheck.containsSpecialCharacter(password))
+    }
+    
+    func resetCriteriaView() {
+        noSpaceLabelView.resetCriteriaView()
+        upperCaseLabelView.resetCriteriaView()
+        lowerCaseLabelView.resetCriteriaView()
+        digitLabelView.resetCriteriaView()
+        specialCharLabelView.resetCriteriaView()
     }
 }
