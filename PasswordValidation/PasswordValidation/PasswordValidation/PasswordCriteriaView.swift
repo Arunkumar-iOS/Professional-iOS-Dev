@@ -108,8 +108,8 @@ extension PasswordCriteriaView {
 //MARK:- Validation update
 extension PasswordCriteriaView {
     func updateCriteriaImage(isValid: Bool) {
-        let imageName = isValid ? "checkmark.circle.fill" : "xmark.circle.fill"
-        let tintColor = isValid ? UIColor.systemGreen : UIColor.systemRed
+        let imageName = isValid ? "checkmark.circle.fill" : "circle"//"xmark.circle.fill"
+        let tintColor = isValid ? UIColor.systemGreen : UIColor.tertiaryLabel
         
         checkBoxImageView.image = UIImage(systemName: imageName)?
             .withTintColor(tintColor, renderingMode: .alwaysOriginal)

@@ -8,11 +8,21 @@
 import UIKit
 
 
+typealias CustomValidation = (_ textValue: String?) -> (Bool, String)?
+
 class PasswordFieldView: UIView {
+    
+    var customValidation: CustomValidation?
+    
+    var text: String? {
+        get { return passwordtextField.text }
+        set { passwordtextField.text = newValue }
+    }
     
     let textFieldPalceholderText: String
     
     var onTextChange: ((UITextField) -> Void)?
+    var onTextEditingDidEnd: ((UITextField) -> Void)?
     
     lazy var passwordtextField: UITextField = {
         let textField = UITextField()
@@ -20,6 +30,7 @@ class PasswordFieldView: UIView {
        // textField.placeholder = "  New Password  "
         textField.attributedPlaceholder = NSAttributedString(string: "  \(textFieldPalceholderText)  ", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         textField.textColor = .secondaryLabel
+        textField.delegate = self
         
         // Left Image View
         let leftImageView = UIImageView(image: UIImage(systemName: "lock.fill"))
@@ -58,7 +69,7 @@ class PasswordFieldView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .red
         label.font = .preferredFont(forTextStyle: .footnote)
-        label.text = "Enter Your Password"
+        label.text = ""
         //label.adjustsFontSizeToFitWidth = true //When you don't want to make multiline
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
@@ -96,6 +107,7 @@ extension PasswordFieldView {
     private func style() {
         
         addSubview(passwordFieldStackView)
+        
     }
     
     private func layout() {
@@ -107,6 +119,7 @@ extension PasswordFieldView {
             passwordFieldStackView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
+    
 }
 
 //MARK:- Action
@@ -124,3 +137,45 @@ extension PasswordFieldView {
 }
 
 
+//MARK:- Delegate
+extension PasswordFieldView: UITextFieldDelegate {
+    
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        print("TextField end editing..! and value is \(textField.text!)")
+        onTextEditingDidEnd?(textField)
+            return true
+        }
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        print("Return key presses and we need to dismiss a keyboard")
+       // textField.endEditing(true)
+        textField.resignFirstResponder()
+        return true
+    }
+}
+
+
+// typealias CustomValidation = (_ textValue: String?) -> (Bool, String)?
+
+// MARK: - Validation
+extension PasswordFieldView {
+    func validate() -> Bool {
+        if let customValidation = customValidation,
+            let customValidationResult = customValidation(text),
+            customValidationResult.0 == false {
+            showError(customValidationResult.1)
+            return false
+        }
+        clearError()
+        return true
+    }
+    
+    private func showError(_ errorMessage: String) {
+        errorLabel.isHidden = false
+        errorLabel.text = errorMessage
+    }
+
+    private func clearError() {
+        errorLabel.isHidden = true
+        errorLabel.text = ""
+    }
+}
